@@ -33,3 +33,22 @@ pub fn load_config(path: &str) -> Result<Config, Box<dyn std::error::Error>> {
     let config: Config = toml::from_str(&content)?;
     Ok(config)
 }
+
+impl Config {
+    pub fn validate(&self) -> Result<(), String> {
+        if self.api.podcastindex_key.is_empty() {
+            return Err("ERROR: Config - PodcastIndex API key is empty".to_string());
+        }
+        if self.time.timezone_offset.abs() > 11 {
+            return Err("ERROR: Config - Timezone offset must be between -11 and 11".to_string());
+        }
+        if self.time.cutoff_hour > 23 {
+            return Err("ERROR: Config - Cutoff hour must be smaller than 24".to_string());
+        }
+        if self.execution.default_weeks == 0 {
+            return Err("ERROR: Config - Default weeks must be greater than 0".to_string());
+        }
+
+        Ok(())
+    }
+}
